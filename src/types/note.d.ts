@@ -5,3 +5,8 @@ export interface Note {
 }
 
 export type NoteList = Note[]
+
+export interface NoteListState {
+  leftList: Note[]
+  rightList: Note[]
+}

@@ -1,19 +1,92 @@
 <script setup lang="ts">
 import { getNotes } from '@/api/note'
-import { ref } from 'vue'
-import type { NoteList } from '@/types';
+import { ref, onMounted, watch, nextTick, reactive } from 'vue'
+import type { NoteList, NoteListState } from '@/types';
 const notes = ref([] as NoteList)
-getNotes<NoteList>(1, 10).then(res => {
-    notes.value = res
+const items = ref([] as HTMLElement[])
+const initList = () => {
+    getNotes<NoteList>(1, 10).then(res => {
+        notes.value = res
+    })
+}
+
+const noteListState: NoteListState = {
+    leftList: [],
+    rightList: []
+}
+
+const state = reactive(noteListState)
+
+const initLRlist = () => {
+    let leftHeightSum = 0
+    let rightHeightSum = 0
+    const leftArr: NoteList = []
+    const rightArr: NoteList = []
+
+    nextTick(() => {
+        console.log(items.value)
+        items.value!.forEach((item, index) => {
+            if (leftHeightSum <= rightHeightSum) {
+                leftArr.push(notes.value[index])
+                leftHeightSum += item?.clientHeight
+            } else {
+                rightArr.push(notes.value[index])
+                rightHeightSum += item?.clientHeight
+            }
+        })
+        state.leftList = leftArr.reverse()
+        state.rightList = rightArr.reverse()
+    })
+}
+
+onMounted(() => {
+    initList()
 })
 
+watch(notes, () => {
+    initLRlist()
+})
 </script>
 
 <template>
     <div class="note-box">
         <div class="list-box">
-            <div class="init-box">
-                <div class="list-item" v-for="item in notes" :key="item['_id']">
+            <div class="list-left">
+                <div class="list-item" v-for="item in state.leftList" :key="item['_id']">
+                    <div class="item-content">
+                        <p class="item-text">
+                            {{ item.content }}
+                        </p>
+                    </div>
+                    <div class="item-bottom">
+                        <p>
+                            {{ item.dates }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="list-right">
+                <div class="list-item" v-for="item in state.rightList" :key="item['_id']">
+                    <div class="item-content">
+                        <p class="item-text">
+                            {{ item.content }}
+                        </p>
+                    </div>
+                    <div class="item-bottom">
+                        <p>
+                            {{ item.dates }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="init-list">
+                <div class="list-item" v-for="item in notes" :key="item['_id']" :ref="el => {
+                    if (el != null) {
+                        items.push(el as HTMLElement)
+                    }
+                }">
                     <div class="item-content">
                         <p class="item-text">
                             {{ item.content }}
@@ -82,9 +155,9 @@ getNotes<NoteList>(1, 10).then(res => {
             width: 50%;
             /* background-color: rgb(122, 129, 127); */
             position: absolute;
-            /* visibility: hidden; */
-            /* height: 2rem; */
-            /* overflow: hidden; */
+            visibility: hidden;
+            height: 2rem;
+            overflow: hidden;
         }
 
         .list-item {
