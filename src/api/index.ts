@@ -5,10 +5,14 @@ axios.interceptors.request.use((config) => {
     return config
 })
 
-axios.interceptors.response.use((response) => {
-    return response.data
-}, (error) => {
-    return Promise.reject(error)
-})
+axios.interceptors.response.use(
+    (response) => {
+        if (response.data.status === 20000) {
+            return response.data.data
+        }
+    },
+    (error) => {
+        return Promise.reject(error)
+    })
 
 export default axios
