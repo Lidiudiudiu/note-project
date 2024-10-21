@@ -3,10 +3,8 @@
 </script>
 
 <template>
-  <header>
-    <van-button type="primary">点击</van-button>
-  </header>
 
+  <router-view />
 </template>
 
 <style scoped></style>
