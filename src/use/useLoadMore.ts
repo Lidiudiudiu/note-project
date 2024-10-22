@@ -1,4 +1,5 @@
 import type {Ref} from 'vue'
+import { throllte } from '@/utils/throllte'
 export default function useLoadMore(element:Ref<null | HTMLElement>,fn :() => void) {
     function loadMore() {
         const containerHeight = element.value?.clientHeight
@@ -9,5 +10,5 @@ export default function useLoadMore(element:Ref<null | HTMLElement>,fn :() => vo
             fn()
         }
     }
-    element.value?.addEventListener('scroll',loadMore)
+    element.value?.addEventListener('scroll',throllte(loadMore,1000))
 }
