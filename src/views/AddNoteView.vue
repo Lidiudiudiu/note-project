@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useListStore } from '@/stores/notelist';
 import { showSuccessToast } from 'vant';
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 const ListStore = useListStore()
 const router = useRouter()
 const state = reactive({
     note: {
         content: '',
         dates: ''
-    }
+    },
+    oldContent: '',
+    id: ''
 })
 const date = new Date()
 const doAddNotes = () => {
@@ -21,6 +23,23 @@ const doAddNotes = () => {
         }
     })
 }
+const route = useRoute()
+const initNote = () => {
+    const id = route.query.id
+    if (!id) return
+    ListStore.list.forEach(item => {
+        if (item._id == id) {
+            state.note.content = item.content
+            state.oldContent = item.content
+            state.id = id
+        }
+    })
+}
+
+onMounted(() => {
+    initNote()
+})
+
 </script>
 
 <template>

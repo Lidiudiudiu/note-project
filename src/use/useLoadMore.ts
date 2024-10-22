@@ -1,6 +1,6 @@
 import type {Ref} from 'vue'
 import { throllte } from '@/utils/throllte'
-export default function useLoadMore(element:Ref<null | HTMLElement>,fn :() => void) {
+export default function useLoadMore(element:Ref<null | HTMLElement | undefined>,fn :() => void) {
     function loadMore() {
         const containerHeight = element.value?.clientHeight
         const scrollTop = element.value?.scrollTop

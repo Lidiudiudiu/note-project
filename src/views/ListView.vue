@@ -4,6 +4,8 @@ import type { NoteList, NoteListState } from '@/types';
 import { useListStore } from '@/stores/notelist';
 import { debounce } from '@/utils/debounce';
 import useLoadMore from '@/use/useLoadMore'
+import { useRouter } from 'vue-router';
+const router = useRouter()
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
 const listStore = useListStore()
@@ -42,7 +44,7 @@ const initLRlist = () => {
     })
 }
 
-const refListBox = ref<null | HTMLElement>()
+const refListBox = ref<null | HTMLElement | undefined>()
 
 const loadMore = () => {
     stateV.page++
@@ -91,6 +93,17 @@ const headleClear = () => {
 
 watch(() => stateV.searchValue, debounce(handleSearch, 1000))
 
+const handleAdd = () => {
+    router.push('/addnote')
+}
+
+const handleClickItem = (e: any) => {
+    if (e.target.className == 'click-model') {
+        const id = e.target.id
+        router.push({ path: '/addnote', query: { id } })
+    }
+}
+
 </script>
 
 <template>
@@ -99,7 +112,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
             @clear="headleClear">
         </van-search>
         <div class="list-box" ref="refListBox">
-            <div class="list-left">
+            <div class="list-left" @click="handleClickItem">
                 <div class="list-item" v-for="item in state.leftList" :key="item['_id']">
                     <div class="item-content">
                         <p class="item-text">
@@ -111,7 +124,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
                             {{ item.dates }}
                         </p>
                     </div>
-
+                    <div class="click-model" :id="item['_id']"></div>
                 </div>
             </div>
             <div class="list-right">
@@ -149,6 +162,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
                 </div>
             </div>
         </div>
+        <van-button round icon="plus" class="button" type="primary" @click="handleAdd"></van-button>
     </div>
 </template>
 
@@ -264,6 +278,17 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
                 user-select: none;
             }
         }
+    }
+
+    .button {
+        position: fixed;
+        bottom: 0.2rem;
+        right: 0.2rem;
+    }
+
+    .van-button {
+        width: 0.44rem;
+        height: 0.44rem;
     }
 }
 </style>
