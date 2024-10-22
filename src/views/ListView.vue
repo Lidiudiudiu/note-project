@@ -47,10 +47,32 @@ onMounted(() => {
 watch(notes, () => {
     initLRlist()
 })
+
+const stateV = reactive({
+    searchValue: ''
+})
+
+const handleSearch = () => {
+    listStore.getNotesListSearch(stateV.searchValue).then(res => {
+        items.value = []
+        notes.value = res
+    })
+}
+
+const headleClear = () => {
+    listStore.getNoteList().then((res) => {
+        items.value = []
+        notes.value = res
+    })
+}
+
 </script>
 
 <template>
     <div class="note-box">
+        <van-search placeholder="搜索便签" input-align="center" v-model="stateV.searchValue" @search="handleSearch"
+            @clear="headleClear">
+        </van-search>
         <div class="list-box">
             <div class="list-left">
                 <div class="list-item" v-for="item in state.leftList" :key="item['_id']">
@@ -112,6 +134,15 @@ watch(notes, () => {
     flex: 1;
     padding: 0 0.1rem;
     box-sizing: border-box;
+
+    .van-search {
+        :v-deep(.van-search__content) {
+            background-color: rgb(247, 247, 247);
+            border-radius: 0.2rem;
+        }
+
+        background-color: rgb(247, 247, 247);
+    }
 
     .list-box {
         width: 100%;
