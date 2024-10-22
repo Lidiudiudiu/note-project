@@ -16,12 +16,25 @@ const state = reactive({
 const date = new Date()
 const doAddNotes = () => {
     state.note.dates = `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`
-    ListStore.addNoteList(state.note).then((res) => {
-        if (res) {
-            showSuccessToast('添加成功')
-            router.push('/')
+    if (state.id) {
+        if (state.oldContent !== state.note.content) {
+            const payload = { id: state.id, note: state.note }
+            ListStore.updateNoteList(payload).then(res => {
+                if (res) {
+                    showSuccessToast('更新成功')
+                    router.push('/')
+                }
+            })
         }
-    })
+    } else {
+        ListStore.addNoteList(state.note).then((res) => {
+            if (res) {
+                showSuccessToast('添加成功')
+                router.push('/')
+            }
+        })
+    }
+
 }
 const route = useRoute()
 const initNote = () => {
