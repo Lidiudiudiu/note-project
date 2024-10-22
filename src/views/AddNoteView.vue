@@ -47,6 +47,13 @@ const initNote = () => {
             state.id = id
         }
     })
+    if (!ListStore.list.length) {
+        ListStore.getNoteByIdList(id as string).then(res => {
+            state.note.content = res.content
+            state.oldContent = res.content
+            state.id = res._id as string
+        })
+    }
 }
 
 onMounted(() => {

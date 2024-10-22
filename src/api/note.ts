@@ -15,3 +15,7 @@ export function getNotesListByContent<T>(content:string) {
 export function updateNote<T>(id:string,note:T) {
   return axios.put(`/note/${id}`,note) as Promise<T>
 }
+
+export function getNoteById<T>(id:string) {
+  return axios.get<T>(`/note/id/${id}`) as Promise<T>
+}
