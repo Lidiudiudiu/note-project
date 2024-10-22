@@ -3,11 +3,12 @@ import { ref, onMounted, watch, nextTick, reactive } from 'vue'
 import type { NoteList, NoteListState } from '@/types';
 import { useListStore } from '@/stores/notelist';
 import { debounce } from '@/utils/debounce';
+import useLoadMore from '@/use/useLoadMore'
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
 const listStore = useListStore()
 const initList = () => {
-    listStore.getNoteList().then((res) => {
+    listStore.getNoteList(stateV.page, stateV.size).then((res) => {
         notes.value = res
     })
 }
@@ -41,8 +42,19 @@ const initLRlist = () => {
     })
 }
 
+const refListBox = ref<null | HTMLElement>()
+
+const loadMore = () => {
+    stateV.page++
+    listStore.getNoteList(stateV.page, stateV.size).then((res) => {
+        items.value = []
+        notes.value = res
+    })
+}
+
 onMounted(() => {
     initList()
+    useLoadMore(refListBox, loadMore)
 })
 
 watch(notes, () => {
@@ -50,12 +62,14 @@ watch(notes, () => {
 })
 
 const stateV = reactive({
-    searchValue: ''
+    searchValue: '',
+    page: 1,
+    size: 10
 })
 
 const handleSearch = () => {
     if (!stateV.searchValue.trim()) {
-        listStore.getNoteList().then((res) => {
+        listStore.getNoteList(stateV.page, stateV.size).then((res) => {
             items.value = []
             notes.value = res
         })
@@ -69,7 +83,7 @@ const handleSearch = () => {
 }
 
 const headleClear = () => {
-    listStore.getNoteList().then((res) => {
+    listStore.getNoteList(stateV.page, stateV.size).then((res) => {
         items.value = []
         notes.value = res
     })
@@ -84,7 +98,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
         <van-search placeholder="搜索便签" input-align="center" v-model="stateV.searchValue" @search="handleSearch"
             @clear="headleClear">
         </van-search>
-        <div class="list-box">
+        <div class="list-box" ref="refListBox">
             <div class="list-left">
                 <div class="list-item" v-for="item in state.leftList" :key="item['_id']">
                     <div class="item-content">

@@ -8,10 +8,14 @@ export const useListStore = defineStore('list', {
         }
     },
     actions: {
-        async getNoteList() {
-            const res = await getNotes<NoteList>(1,50)
-            this.list = res
-            return res
+        async getNoteList(page:number,size:number) {
+            const res = await getNotes<NoteList>(page,size)
+            if (page === 1) {
+                this.list = res
+            } else {
+                this.list.push(...res)
+            }
+            return [...this.list]
         },
         async addNoteList(payload:Note) {
             return await addNotes<Note>(payload)
