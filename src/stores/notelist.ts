@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type {Note,NoteList} from '@/types'
-import {getNotes} from '@/api/note'
+import {getNotes,addNotes} from '@/api/note'
 export const useListStore = defineStore('list', {
     state: () => {
         return {
@@ -9,9 +9,12 @@ export const useListStore = defineStore('list', {
     },
     actions: {
         async getNoteList() {
-            const res = await getNotes<NoteList>(1,10)
+            const res = await getNotes<NoteList>(1,50)
             this.list = res
             return res
+        },
+        async addNoteList(payload:Note) {
+            return await addNotes<Note>(payload)
         }
     }
 })
