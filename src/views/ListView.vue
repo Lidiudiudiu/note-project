@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { getNotes } from '@/api/note'
 import { ref, onMounted, watch, nextTick, reactive } from 'vue'
 import type { NoteList, NoteListState } from '@/types';
+import { useListStore } from '@/stores/notelist';
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
+const listStore = useListStore()
 const initList = () => {
-    getNotes<NoteList>(1, 10).then(res => {
+    listStore.getNoteList().then((res) => {
         notes.value = res
     })
 }
@@ -24,7 +25,7 @@ const initLRlist = () => {
     const rightArr: NoteList = []
 
     nextTick(() => {
-        console.log(items.value)
+
         items.value!.forEach((item, index) => {
             if (leftHeightSum <= rightHeightSum) {
                 leftArr.push(notes.value[index])
