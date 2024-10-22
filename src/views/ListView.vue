@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, nextTick, reactive } from 'vue'
 import type { NoteList, NoteListState } from '@/types';
 import { useListStore } from '@/stores/notelist';
+import { debounce } from '@/utils/debounce';
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
 const listStore = useListStore()
@@ -53,10 +54,18 @@ const stateV = reactive({
 })
 
 const handleSearch = () => {
-    listStore.getNotesListSearch(stateV.searchValue).then(res => {
-        items.value = []
-        notes.value = res
-    })
+    if (!stateV.searchValue.trim()) {
+        listStore.getNoteList().then((res) => {
+            items.value = []
+            notes.value = res
+        })
+    } else {
+        listStore.getNotesListSearch(stateV.searchValue).then(res => {
+            items.value = []
+            notes.value = res
+        })
+    }
+
 }
 
 const headleClear = () => {
@@ -65,6 +74,8 @@ const headleClear = () => {
         notes.value = res
     })
 }
+
+watch(() => stateV.searchValue, debounce(handleSearch, 1000))
 
 </script>
 
