@@ -5,6 +5,7 @@ import { useListStore } from '@/stores/notelist';
 import { debounce } from '@/utils/debounce';
 import useLoadMore from '@/use/useLoadMore'
 import { useRouter } from 'vue-router';
+
 import useLongTouch from '@/use/uselongTouch';
 const router = useRouter()
 const notes = ref([] as NoteList)
@@ -99,14 +100,14 @@ const handleAdd = () => {
     router.push('/addnote')
 }
 
-const handleClickItem = (e: MouseEvent) => {
+const handleClickItem = (e: MouseEvent | TouchEvent) => {
     if ((e.target as HTMLElement).className == 'click-model') {
         const id = (e.target as HTMLElement).id;
         router.push({ path: '/addnote', query: { id } })
     }
 }
 
-const show = ref(true)
+const show = ref(false)
 
 const leftDom = ref<null | HTMLElement>(null)
 const rightDom = ref<null | HTMLElement>(null)
@@ -114,7 +115,21 @@ useLongTouch([leftDom, rightDom], (id: string) => {
     //通过id值,调用删除的接口
     //删除dom显示
     stateV.delId = id
+    show.value = true;
+
 })
+
+const handleDelete = () => {
+    listStore.deleteNoteByIdList(stateV.delId).then(res => {
+        if (res) {
+            show.value = false
+            listStore.getNoteList(stateV.page, stateV.size).then((res) => {
+                items.value = []
+                notes.value = res
+            })
+        }
+    })
+}
 
 </script>
 
@@ -175,7 +190,7 @@ useLongTouch([leftDom, rightDom], (id: string) => {
             </div>
         </div>
         <van-popup v-model:show="show" position="bottom" :style="{ height: '10%' }">
-            <div class="delete-box">删除</div>
+            <div class="delete-box" @click="handleDelete">删除</div>
         </van-popup>
         <van-button round icon="plus" class="button" type="primary" @click="handleAdd"></van-button>
     </div>

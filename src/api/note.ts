@@ -19,3 +19,7 @@ export function updateNote<T>(id:string,note:T) {
 export function getNoteById<T>(id:string) {
   return axios.get<T>(`/note/id/${id}`) as Promise<T>
 }
+
+export function deleteNoteById<T>(id:string) {
+  return axios.delete<T>(`/note/${id}`) as Promise<T>
+}
