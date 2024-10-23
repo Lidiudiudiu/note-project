@@ -5,6 +5,7 @@ import { useListStore } from '@/stores/notelist';
 import { debounce } from '@/utils/debounce';
 import useLoadMore from '@/use/useLoadMore'
 import { useRouter } from 'vue-router';
+import useLongTouch from '@/use/uselongTouch';
 const router = useRouter()
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
@@ -66,7 +67,8 @@ watch(notes, () => {
 const stateV = reactive({
     searchValue: '',
     page: 1,
-    size: 10
+    size: 10,
+    delId: ''
 })
 
 const handleSearch = () => {
@@ -97,12 +99,22 @@ const handleAdd = () => {
     router.push('/addnote')
 }
 
-const handleClickItem = (e: any) => {
-    if (e.target.className == 'click-model') {
-        const id = e.target.id
+const handleClickItem = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).className == 'click-model') {
+        const id = (e.target as HTMLElement).id;
         router.push({ path: '/addnote', query: { id } })
     }
 }
+
+const show = ref(true)
+
+const leftDom = ref<null | HTMLElement>(null)
+const rightDom = ref<null | HTMLElement>(null)
+useLongTouch([leftDom, rightDom], (id: string) => {
+    //通过id值,调用删除的接口
+    //删除dom显示
+    stateV.delId = id
+})
 
 </script>
 
@@ -112,7 +124,7 @@ const handleClickItem = (e: any) => {
             @clear="headleClear">
         </van-search>
         <div class="list-box" ref="refListBox">
-            <div class="list-left" @click="handleClickItem">
+            <div class="list-left" @click="handleClickItem" ref="leftDom">
                 <div class="list-item" v-for="item in state.leftList" :key="item['_id']">
                     <div class="item-content">
                         <p class="item-text">
@@ -127,7 +139,7 @@ const handleClickItem = (e: any) => {
                     <div class="click-model" :id="item['_id']"></div>
                 </div>
             </div>
-            <div class="list-right">
+            <div class="list-right" @click="handleClickItem" ref="rightDom">
                 <div class="list-item" v-for="item in state.rightList" :key="item['_id']">
                     <div class="item-content">
                         <p class="item-text">
@@ -139,7 +151,7 @@ const handleClickItem = (e: any) => {
                             {{ item.dates }}
                         </p>
                     </div>
-
+                    <div class="click-model" :id="item['_id']"></div>
                 </div>
             </div>
             <div class="init-list">
@@ -162,6 +174,9 @@ const handleClickItem = (e: any) => {
                 </div>
             </div>
         </div>
+        <van-popup v-model:show="show" position="bottom" :style="{ height: '10%' }">
+            <div class="delete-box">删除</div>
+        </van-popup>
         <van-button round icon="plus" class="button" type="primary" @click="handleAdd"></van-button>
     </div>
 </template>
@@ -289,6 +304,16 @@ const handleClickItem = (e: any) => {
     .van-button {
         width: 0.44rem;
         height: 0.44rem;
+    }
+
+    .delete-box {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #1989fa;
+        font-size: 0.23rem;
     }
 }
 </style>

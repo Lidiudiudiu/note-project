@@ -56,6 +56,10 @@ const initNote = () => {
     }
 }
 
+const backIndex = () => {
+    router.push('/')
+}
+
 onMounted(() => {
     initNote()
 })
@@ -64,7 +68,10 @@ onMounted(() => {
 
 <template>
     <div class="add-note-box">
-        <van-nav-bar left-arrow>
+        <van-nav-bar>
+            <template #left>
+                <van-icon name="arrow-left" size="18" @click="backIndex" color="blue" />
+            </template>
             <template #right>
                 <van-icon name="success" size="18" @click="doAddNotes"></van-icon>
             </template>
